@@ -23,35 +23,31 @@ pub enum LockReason {
 }
 
 impl Account {
-    // TODO: add checked aritmetic.
-    pub fn deposit(&mut self, amount: Balance) {
-        self.total += amount;
+    pub fn deposit(&mut self, amount: f64) {
         self.available += amount;
     }
-    // TODO: add checked aritmetic.
-    // dont allow withdraw
-    pub fn withdraw(&mut self, amount: Balance) {
-        self.total -= amount;
+
+    pub fn withdraw(&mut self, amount: f64) {
         self.available -= amount;
     }
 
-    pub fn freeze_funds(&mut self, amount: Balance) {
+    pub fn freeze_funds(&mut self, amount: f64) {
         self.available -= amount;
         self.held += amount;
     }
 
-
-    pub fn thaw_funds(&mut self, amount: Balance) {
-        self.available -= amount;
-        self.held += amount;
+    pub fn thaw_funds(&mut self, amount: f64) {
+        self.available += amount;
+        self.held -= amount;
     }
 
-    pub fn lock_account(&mut self, reason_for_lock: LockReason) {
-        self.locked = Some(Locked{reason_for_lock});
+    pub fn chargeback(&mut self, amount: f64) {
+        self.held -= amount;
+        self.locked = Some(Locked {reason_for_lock: LockReason::Chargeback});
     }
 
-    pub fn unlock_account(&mut self) {
-        self.locked = None;
+    pub fn total(&self) -> f64 {
+        self.available + self.held
     }
 }
 
