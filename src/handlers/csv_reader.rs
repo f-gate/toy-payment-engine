@@ -1,10 +1,10 @@
-use crate::types::*;
+
 use crate::transaction::*;
-use crate::account::*;
-use crate::validated_transaction::*;
+
+
 use csv::Reader;
 use eyre::*;
-use std::{fs::File, sync::{mpsc::{Receiver, Sender}}, thread, thread::JoinHandle, collections::HashMap};
+use std::{fs::File, sync::{mpsc::{Sender}}, thread};
 use std::result::Result::Ok;
 
 /// Used for reading line by line and deserializing.
@@ -54,10 +54,10 @@ mod tests {
 
     use super::*;
     use std::sync::mpsc::channel;
-    use std::fs::File;
+    
     use std::io::Write;
     use tempfile::NamedTempFile;
-    use std::time::Duration;
+    
 
     #[test]
     fn test_csv_reader() {

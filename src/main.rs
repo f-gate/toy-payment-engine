@@ -6,18 +6,18 @@ mod account;
 
 use handlers::*;
 use transaction::*;
-use validated_transaction::*;
-use types::*;
-use account::*;
+
+
+
 
 use std::env;
 use csv::Writer;
 use std::fs::OpenOptions;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc::channel;
-use std::collections::HashMap;
-use eyre::{Result, eyre};
-use std::thread;
+
+use eyre::{Result};
+
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -61,7 +61,7 @@ pub fn process_transactions(input_filename: String, output_filename: String) -> 
         .open(output_filename)?;
     let mut wtr = Writer::from_writer(output_file);
 
-    wtr.write_record(&["client", "available", "held", "total", "locked"])?;
+    wtr.write_record(["client", "available", "held", "total", "locked"])?;
 
     for (client_id, account) in accounts {
         wtr.write_record(&[

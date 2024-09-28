@@ -2,9 +2,9 @@ use crate::types::*;
 use crate::transaction::*;
 use crate::account::*;
 use crate::validated_transaction::*;
-use csv::Reader;
+
 use eyre::*;
-use std::{fs::File, sync::{mpsc::{Receiver, Sender}}, thread, thread::JoinHandle, collections::HashMap};
+use std::{sync::{mpsc::{Receiver}}, thread, thread::JoinHandle, collections::HashMap};
 use std::result::Result::Ok;
 
 pub struct AccountManager {
