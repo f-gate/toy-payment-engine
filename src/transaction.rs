@@ -1,8 +1,5 @@
+use crate::types::*;
 use serde::Deserialize;
-
-pub type ClientId = u16;
-pub type TxId = u32;
-pub type Balance = f32;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TransactionCommand {
@@ -13,16 +10,11 @@ pub enum TransactionCommand {
     Chargeback(Chargeback),
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Account {
-    /// The total funds that are available for trading, staking, withdrawal, etc. This should be equal to the total - held amounts.
-    pub available: Balance,
-    /// The total funds that are held for dispute. This should be equal to total - available amounts.
-    pub held: Balance,
-    /// The total funds that are available or held. This should be equal to available + held.
-    pub total: Balance,
-    /// Whether the account is locked. An account is locked if a charge back occurs
-    pub locked: Option<Locked>,
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct DepositState {
+    pub client_id: ClientId,
+    pub amount: Balance,
+    pub is_under_dispute: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -80,13 +72,3 @@ pub struct Chargeback {
     pub tx_id: TxId,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Locked {
-    pub locked_at: u32,
-    pub reason_for_lock: LockReason,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum LockReason {
-    Chargeback,
-}
