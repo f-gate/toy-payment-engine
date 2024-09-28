@@ -4,7 +4,7 @@ use crate::account::*;
 use crate::validated_transaction::*;
 use csv::Reader;
 use eyre::*;
-use std::{fs::File, sync::{mpsc, mpsc::{Receiver, Sender}}, thread, time::Duration, collections::HashMap};
+use std::{fs::File, sync::{mpsc::{Receiver, Sender}}, thread, collections::HashMap};
 
 /// Used for reading line by line and deserialising.
 struct CsvReader {
@@ -16,7 +16,7 @@ impl CsvReader {
     }
 
     // Todo log and ignore erroneous lines.
-    pub fn start(self, file_name: String, thread_count: u8) -> Result<()> {
+    pub fn start(self, file_name: String, _thread_count: u8) -> Result<()> {
         thread::spawn(move || {
             let file = File::open(file_name).unwrap();
             let mut rdr = Reader::from_reader(file);
@@ -93,7 +93,7 @@ impl CommandConverter {
                         ),
                     }
                 }
-                Err(e) => break,
+                Err(_e) => break,
             }
         });
     }
@@ -131,10 +131,10 @@ impl AccountManager {
 
                     match self.validate_transaction(&tx_command) {
                         Result::Ok(validated_tx) => {
-                            if let Some(mut actioning_account) =
+                            if let Some(actioning_account) =
                                 self.find_actioning_account(&validated_tx)
                             {
-                                Self::execute_command(&mut actioning_account, &validated_tx);
+                                Self::execute_command(actioning_account, &validated_tx);
                             } else {
                                 tracing::error!(
                                     "Cannot find actioning account for transaction: {:?}",

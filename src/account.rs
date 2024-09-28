@@ -1,5 +1,4 @@
 use crate::types::*;
-use eyre;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Account {
