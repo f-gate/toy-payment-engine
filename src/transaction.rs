@@ -71,4 +71,3 @@ pub struct Chargeback {
     pub client_id: ClientId,
     pub tx_id: TxId,
 }
-

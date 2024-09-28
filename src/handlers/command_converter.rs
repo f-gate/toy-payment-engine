@@ -1,11 +1,12 @@
-
 use crate::transaction::*;
 
-
-
 use eyre::*;
-use std::{sync::{mpsc::{Receiver, Sender}}, thread, thread::JoinHandle};
 use std::result::Result::Ok;
+use std::{
+    sync::mpsc::{Receiver, Sender},
+    thread,
+    thread::JoinHandle,
+};
 
 /// Try and convert the AnyTransaction into a transacton command.
 /// Valdation over required fields is done here.
@@ -33,7 +34,10 @@ impl CommandConverter {
                                         amount,
                                     }))
                                 } else {
-                                    Err(eyre!("Found erroneous deposit transaction, ignoring: {:?}", tx))
+                                    Err(eyre!(
+                                        "Found erroneous deposit transaction, ignoring: {:?}",
+                                        tx
+                                    ))
                                 }
                             }
                             CommandType::Withdrawal => {
@@ -44,7 +48,10 @@ impl CommandConverter {
                                         amount,
                                     }))
                                 } else {
-                                    Err(eyre!("Found erroneous withdrawal transaction, ignoring: {:?}", tx))
+                                    Err(eyre!(
+                                        "Found erroneous withdrawal transaction, ignoring: {:?}",
+                                        tx
+                                    ))
                                 }
                             }
                             CommandType::Dispute => Ok(TransactionCommand::Dispute(Dispute {
@@ -55,11 +62,15 @@ impl CommandConverter {
                                 client_id: tx.client_id,
                                 tx_id: tx.tx_id,
                             })),
-                            CommandType::Chargeback => Ok(TransactionCommand::Chargeback(Chargeback {
-                                client_id: tx.client_id,
-                                tx_id: tx.tx_id,
-                            })),
-                            CommandType::Unknown => Err(eyre!("Found unknown transaction, ignoring: {:?}", tx)),
+                            CommandType::Chargeback => {
+                                Ok(TransactionCommand::Chargeback(Chargeback {
+                                    client_id: tx.client_id,
+                                    tx_id: tx.tx_id,
+                                }))
+                            }
+                            CommandType::Unknown => {
+                                Err(eyre!("Found unknown transaction, ignoring: {:?}", tx))
+                            }
                         };
 
                         match maybe_tx_command {
@@ -86,8 +97,6 @@ impl CommandConverter {
 mod tests {
     use super::*;
     use std::sync::mpsc::channel;
-    
-    
 
     #[test]
     fn test_command_converter() {

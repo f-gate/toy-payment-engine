@@ -1,11 +1,9 @@
-
 use crate::transaction::*;
-
 
 use csv::Reader;
 use eyre::*;
-use std::{fs::File, sync::{mpsc::{Sender}}, thread};
 use std::result::Result::Ok;
+use std::{fs::File, sync::mpsc::Sender, thread};
 
 /// Used for reading line by line and deserializing.
 pub struct CsvReader {
@@ -48,16 +46,14 @@ impl CsvReader {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 
     use super::*;
     use std::sync::mpsc::channel;
-    
+
     use std::io::Write;
     use tempfile::NamedTempFile;
-    
 
     #[test]
     fn test_csv_reader() {
@@ -66,7 +62,7 @@ mod tests {
         writeln!(temp_file, "deposit,1,1,1.0").unwrap();
         writeln!(temp_file, "withdrawal,2,2,2.0").unwrap();
         writeln!(temp_file, "deposit,1,3,2.0").unwrap();
-        
+
         let (tx, rx) = channel();
 
         let csv_reader = CsvReader::new(tx);

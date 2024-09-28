@@ -1,6 +1,5 @@
 use crate::types::*;
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValidatedTransactionCommand {
     Deposit(ValidDeposit),

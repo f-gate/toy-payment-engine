@@ -1,23 +1,19 @@
+mod account;
 mod handlers;
 mod transaction;
-mod validated_transaction;
 mod types;
-mod account;
+mod validated_transaction;
 
 use handlers::*;
 use transaction::*;
 
-
-
-
-use std::env;
 use csv::Writer;
+use std::env;
 use std::fs::OpenOptions;
-use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc::channel;
+use std::sync::mpsc::{Receiver, Sender};
 
-use eyre::{Result};
-
+use eyre::Result;
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -30,13 +26,10 @@ fn main() -> Result<()> {
     process_transactions(input_filename, "accounts.csv".to_string())
 }
 
-
 pub fn process_transactions(input_filename: String, output_filename: String) -> Result<()> {
     let (tx_any_tx, rx_any_tx): (Sender<AnyTransaction>, Receiver<AnyTransaction>) = channel();
-    let (tx_tx_command, rx_tx_command): (
-        Sender<TransactionCommand>,
-        Receiver<TransactionCommand>,
-    ) = channel();
+    let (tx_tx_command, rx_tx_command): (Sender<TransactionCommand>, Receiver<TransactionCommand>) =
+        channel();
 
     let csv_reader = CsvReader::new(tx_any_tx.clone());
     let csv_reader_handle = csv_reader.start(input_filename.clone(), 1)?;
@@ -85,10 +78,10 @@ pub fn process_transactions(input_filename: String, output_filename: String) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use eyre::Result;
     use std::fs::read_to_string;
     use std::io::Write;
     use tempfile::NamedTempFile;
-    use eyre::Result;
 
     #[test]
     fn test_process_transactions() -> Result<()> {

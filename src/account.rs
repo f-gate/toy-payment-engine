@@ -43,11 +43,12 @@ impl Account {
 
     pub fn chargeback(&mut self, amount: f64) {
         self.held -= amount;
-        self.locked = Some(Locked {reason_for_lock: LockReason::Chargeback});
+        self.locked = Some(Locked {
+            reason_for_lock: LockReason::Chargeback,
+        });
     }
 
     pub fn total(&self) -> f64 {
         self.available + self.held
     }
 }
-
