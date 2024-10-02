@@ -12,6 +12,7 @@ use std::env;
 use std::fs::OpenOptions;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::{Receiver, Sender};
+use std::io::Write;
 
 use eyre::Result;
 
@@ -23,10 +24,12 @@ fn main() -> Result<()> {
     }
     let input_filename = args[1].clone();
 
-    process_transactions(input_filename, "accounts.csv".to_string())
+    process_transactions(input_filename, None)
 }
 
-pub fn process_transactions(input_filename: String, output_filename: String) -> Result<()> {
+
+/// Pass None into output_filename to write to std-out
+pub fn process_transactions(input_filename: String, output_filename: Option<String>) -> Result<()> {
     let (tx_any_tx, rx_any_tx): (Sender<AnyTransaction>, Receiver<AnyTransaction>) = channel();
     let (tx_tx_command, rx_tx_command): (Sender<TransactionCommand>, Receiver<TransactionCommand>) =
         channel();
@@ -43,22 +46,32 @@ pub fn process_transactions(input_filename: String, output_filename: String) -> 
     drop(tx_any_tx);
     drop(tx_tx_command);
 
+    // TODO: Need to at least eprintln the errors
     csv_reader_handle.join().unwrap();
     command_converter_handle.join().unwrap();
     let accounts = account_manager_handle.join().unwrap();
 
-    let output_file = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(output_filename)?;
-    let mut wtr = Writer::from_writer(output_file);
+    let output_file: Box<dyn Write> = match output_filename {
+        Some(ref s) => {
+            Box::new(OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(s)?)
+        }
+        None => {
+            Box::new(std::io::stdout()) 
+        }
+    };
 
+
+    let mut wtr = Writer::from_writer(output_file);
     wtr.write_record(["client", "available", "held", "total", "locked"])?;
 
     for (client_id, account) in accounts {
         wtr.write_record(&[
             client_id.to_string(),
+            // TODO: Better decimal handling using decimal crate.
             format!("{:.4}", account.available),
             format!("{:.4}", account.held),
             format!("{:.4}", account.total()),
@@ -100,7 +113,7 @@ mod tests {
 
         process_transactions(
             temp_input.path().to_str().unwrap().to_string(),
-            temp_output.path().to_str().unwrap().to_string(),
+            Some(temp_output.path().to_str().unwrap().to_string()),
         )?;
 
         let output_content = read_to_string(temp_output.path())?;
