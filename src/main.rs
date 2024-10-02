@@ -10,9 +10,9 @@ use transaction::*;
 use csv::Writer;
 use std::env;
 use std::fs::OpenOptions;
+use std::io::Write;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::{Receiver, Sender};
-use std::io::Write;
 
 use eyre::Result;
 
@@ -26,7 +26,6 @@ fn main() -> Result<()> {
 
     process_transactions(input_filename, None)
 }
-
 
 /// Pass None into output_filename to write to std-out
 pub fn process_transactions(input_filename: String, output_filename: Option<String>) -> Result<()> {
@@ -52,18 +51,15 @@ pub fn process_transactions(input_filename: String, output_filename: Option<Stri
     let accounts = account_manager_handle.join().unwrap();
 
     let output_file: Box<dyn Write> = match output_filename {
-        Some(ref s) => {
-            Box::new(OpenOptions::new()
+        Some(ref s) => Box::new(
+            OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open(s)?)
-        }
-        None => {
-            Box::new(std::io::stdout()) 
-        }
+                .open(s)?,
+        ),
+        None => Box::new(std::io::stdout()),
     };
-
 
     let mut wtr = Writer::from_writer(output_file);
     wtr.write_record(["client", "available", "held", "total", "locked"])?;
